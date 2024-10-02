@@ -27,4 +27,4 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 model.fit(train_images, train_labels, epochs=5, batch_size=64, validation_data=(test_images, test_labels))
 
 # 학습된 모델 저장
-model.save('handwritten_digit_classifier.h5')
+model.save('handwritten_digit_classifier.keras')
