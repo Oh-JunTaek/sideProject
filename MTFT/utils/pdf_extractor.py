@@ -27,31 +27,42 @@ def remove_special_characters(text):
 
 # 추출된 텍스트에서 불필요한 메타데이터를 제거하는 함수
 def clean_extracted_text(text):
-    # 1. 페이지 번호 제거 (예: 페이지 1, 2, ... 또는 Page 1 등)
-    cleaned_text = re.sub(r"페이지\s*\d+|Page\s*\d+", "", text)
+    # 1. 페이지 번호 제거 (예: 페이지 1, Page 1, 쪽 번호 등)
+    cleaned_text = re.sub(r"(페이지|Page|쪽)\s*\d+", "", text)
     
-    # 2. 차례 및 목차 제거 (차례, 목차 등)
-    cleaned_text = re.sub(r"차례.*|목차.*", "", cleaned_text)
+    # 2. 차례 및 목차 제거 (차례, 목차, Contents 등)
+    cleaned_text = re.sub(r"(차례|목차|Contents).*", "", cleaned_text)
     
     # 3. 발행일, ISBN, 고시번호, 연락처(전화, 팩스) 등 제거
-    cleaned_text = re.sub(r"발행일\s*[^\n]*|ISBN\s*[^\n]*|고시\s*제.*호|전화[^\n]*|팩스[^\n]*", "", cleaned_text)
+    cleaned_text = re.sub(r"(발행일|ISBN|고시\s*제.*호|전화\s*[^\n]*|팩스\s*[^\n]*)", "", cleaned_text)
     
     # 4. 연구진, 연구책임자, 협력기관 관련 정보 제거
-    cleaned_text = re.sub(r"연구진\s*[^\n]*|연구책임자\s*[^\n]*|연구개발진\s*[^\n]*|협력기관\s*[^\n]*|연구보고서\s*[^\n]*", "", cleaned_text)
+    cleaned_text = re.sub(r"(연구진\s*[^\n]*|연구책임자\s*[^\n]*|연구개발진\s*[^\n]*|협력기관\s*[^\n]*|연구보고서\s*[^\n]*)", "", cleaned_text)
     
     # 5. 이메일 및 웹사이트 주소 제거
     cleaned_text = re.sub(r"\S+@\S+\.\S+|http\S+", "", cleaned_text)
     
-    # 6. 불필요한 줄바꿈 제거
+    # 6. 불필요한 구문 제거 (예: 발행, 서지정보, 출판사 등)
+    cleaned_text = re.sub(r"(발행\s*[^\n]*|서지\s*[^\n]*|출판\s*[^\n]*|출판사\s*[^\n]*)", "", cleaned_text)
+
+    # 7. 연구보고서 성과 및 관련 구문 제거
+    cleaned_text = re.sub(r"(정책\s*제안|성과\s*발표|연구\s*결과|연구\s*목표|프로젝트\s*성과).*", "", cleaned_text)
+
+    # 8. 표 및 그림 번호 제거 (예: 표 1, 그림 2 등)
+    cleaned_text = re.sub(r"(표|그림)\s*\d+", "", cleaned_text)
+
+    # 9. 불필요한 줄바꿈 제거 (빈 줄은 삭제하고, 여러 줄바꿈은 한 줄로 통합)
     cleaned_text = re.sub(r'\n+', '\n', cleaned_text)
     
-    # 7. 여러 개의 공백을 하나로 변환
+    # 10. 여러 개의 공백을 하나로 변환
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
     
-    # 8. 특수문자 제거 (기존의 특수문자 제거 패턴 유지)
+    # 11. 특수문자 제거 (기존의 특수문자 제거 패턴 유지)
     cleaned_text = remove_special_characters(cleaned_text)
     
     return cleaned_text
+
+
 
 
 # 전처리된 데이터를 저장할 폴더 생성
