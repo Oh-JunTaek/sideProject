@@ -12,18 +12,47 @@ def extract_text_from_pdf(pdf_path):
             text += page.get_text()
         return text
 
-# 추출된 텍스트에서 불필요한 정보를 제거하는 함수
-def clean_extracted_text(text):
-    # 차례, 페이지 번호 및 발행일 제거
-    cleaned_text = re.sub(r"페이지\s*\d+|차례|발행일.*|목차.*", "", text)
+# 특수문자 제거 함수
+def remove_special_characters(text):
+    """
+    텍스트에서 특수문자 및 불필요한 기호 제거
+    """
+    # 유니코드 범위를 사용해 한글, 영어, 숫자 및 공백 외 문자 제거
+    cleaned_text = re.sub(r'[^\uAC00-\uD7A3\u0020-\u007E\u3131-\u3163\u1100-\u11FF]', '', text)
     
     # 여러 개의 공백을 하나로 변환
-    cleaned_text = ' '.join(cleaned_text.split())
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
     
-    # 불필요한 줄바꿈 제거
-    cleaned_text = re.sub(r'\n+', '\n', cleaned_text)
-
     return cleaned_text
+
+# 추출된 텍스트에서 불필요한 메타데이터를 제거하는 함수
+def clean_extracted_text(text):
+    # 1. 페이지 번호 제거 (예: 페이지 1, 2, ... 또는 Page 1 등)
+    cleaned_text = re.sub(r"페이지\s*\d+|Page\s*\d+", "", text)
+    
+    # 2. 차례 및 목차 제거 (차례, 목차 등)
+    cleaned_text = re.sub(r"차례.*|목차.*", "", cleaned_text)
+    
+    # 3. 발행일, ISBN, 고시번호, 연락처(전화, 팩스) 등 제거
+    cleaned_text = re.sub(r"발행일\s*[^\n]*|ISBN\s*[^\n]*|고시\s*제.*호|전화[^\n]*|팩스[^\n]*", "", cleaned_text)
+    
+    # 4. 연구진, 연구책임자, 협력기관 관련 정보 제거
+    cleaned_text = re.sub(r"연구진\s*[^\n]*|연구책임자\s*[^\n]*|연구개발진\s*[^\n]*|협력기관\s*[^\n]*|연구보고서\s*[^\n]*", "", cleaned_text)
+    
+    # 5. 이메일 및 웹사이트 주소 제거
+    cleaned_text = re.sub(r"\S+@\S+\.\S+|http\S+", "", cleaned_text)
+    
+    # 6. 불필요한 줄바꿈 제거
+    cleaned_text = re.sub(r'\n+', '\n', cleaned_text)
+    
+    # 7. 여러 개의 공백을 하나로 변환
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    
+    # 8. 특수문자 제거 (기존의 특수문자 제거 패턴 유지)
+    cleaned_text = remove_special_characters(cleaned_text)
+    
+    return cleaned_text
+
 
 # 전처리된 데이터를 저장할 폴더 생성
 def create_preprocessed_folder(folder_path):
