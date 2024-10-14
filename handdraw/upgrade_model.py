@@ -3,11 +3,6 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 
-import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-import numpy as np
-
 # 기존 학습된 모델 불러오기
 model = tf.keras.models.load_model('./model/handwritten_digit_classifier.keras')
 
