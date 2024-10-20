@@ -7,6 +7,7 @@ import os
 from utils.input_processor import process_input
 
 
+
 # 사용자 입력을 처리하고 전체 흐름을 진행하는 함수
 def main():
     # 1. 사용자로부터 공지사항 입력 받기

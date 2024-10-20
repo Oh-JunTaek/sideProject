@@ -41,7 +41,7 @@ def create_persona_prompt_with_keywords(content, json_file):
 # 테스트 예시
 if __name__ == "__main__":
     test_content = """
-    10월 18일(금) 코딩 테스트 온/오프라인 해설 안내 @everyone
+    
     """
     
     # 키워드 JSON 파일 경로

@@ -2,6 +2,7 @@ import re
 import json
 from models.llama import get_llama_model
 import os
+from collections import Counter
 
 # JSON 파일에서 키워드를 불러오는 함수
 
@@ -21,18 +22,38 @@ def extract_date(text):
 
 # 키워드 기반으로 title을 추출하는 함수 (날짜가 우선)
 def extract_title(text, keywords):
+    # 1. 날짜 먼저 추출
     date = extract_date(text)
-    if date:
-        return f"{date} 코딩테스트"
     
-    # 날짜가 없을 경우 키워드를 기반으로 추출
+    # 2. 스케줄 관련 키워드를 JSON 파일에서 제외
+    schedule_keywords = keywords.get("schedule", [])
+    
+    # 3. 스케줄 키워드를 제외한 나머지 카테고리에서 키워드를 추출
+    keyword_count = Counter()
+
+    # 4. 모든 카테고리에서 키워드의 빈도를 카운트
     for category, keyword_list in keywords.items():
-        for keyword in keyword_list:
-            if keyword in text:
-                return f"{keyword} 안내"
+        if category != "schedule":  # 스케줄 관련 키워드는 제외
+            for keyword in keyword_list:
+                keyword_count[keyword] += text.count(keyword)
+
+    # 5. 빈도수가 가장 높은 키워드 선택
+    if keyword_count:
+        keyword_found = keyword_count.most_common(1)[0][0]
+    else:
+        keyword_found = None
+
+    # 6. 최종 타이틀 생성: 날짜와 가장 많이 등장한 키워드를 결합
+    if date and keyword_found:
+        return f"{date} {keyword_found} 안내"
+    elif date:
+        return f"{date} 안내"
+    elif keyword_found:
+        return f"{keyword_found} 안내"
     
-    # 키워드가 없는 경우 None 반환
+    # 7. 키워드가 없는 경우 None 반환
     return None
+
 
 # 공지 내용에서 content를 추출하는 함수
 def extract_content(text):
