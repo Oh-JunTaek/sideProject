@@ -2,4 +2,3 @@ langchain
 langchain-community
 markdown markdownify
 python-dotenv
-requests
