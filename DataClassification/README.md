@@ -6,6 +6,9 @@ python -m venv venv
 2. 가상환경 활성화
 ```
 .\venv\Scripts\activate
+
+# mac
+source venv/bin/activate
 ```
 
 3. 라이브러리 설치
