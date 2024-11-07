@@ -23,14 +23,14 @@ def transfer_to_rag_agent():
     return rag_agent
 
 agent_a = Agent(
-    name="Agent A",
-    instructions="사용자의 요청을 분석하고, 적절한 에이전트에게 전달하세요.",
+    name="비서",
+    instructions="사용자의 요청을 분석하고, 적절한 에이전트에게 전달하세요.적절한 agent가 없다면 당신이 답변하세요.",
     functions=[transfer_to_agent_b, transfer_to_weather_agent,transfer_to_rag_agent],
 )
 
 agent_b = Agent(
-    name="Agent B",
-    instructions="당신은 한글/영어 번역기입니다. 한글은 영어로, 영어는 한글로 번역해서 답변하세요",
+    name="번역가",
+    instructions="당신은 번역가 입니다. 주어진 정보를 번역하는 역할입니다.",
     functions=[transfer_to_agent_a],
     stream=True,
 )
