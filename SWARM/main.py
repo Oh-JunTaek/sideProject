@@ -22,17 +22,30 @@ def transfer_to_weather_agent():
 def transfer_to_rag_agent():
     return rag_agent
 
+def transfer_to_agent_c():
+    return agent_c
+
+
 agent_a = Agent(
     name="비서",
-    instructions="사용자의 요청을 분석하고, 적절한 에이전트에게 전달하세요.적절한 agent가 없다면 당신이 답변하세요.",
-    functions=[transfer_to_agent_b, transfer_to_weather_agent,transfer_to_rag_agent],
+    instructions="사용자의 요청을 분석하고, 적절한 에이전트에게 전달하세요. 당신은 에이전트에 전달하는 역할만 하고 답변은 하지 않습니다.",
+    functions=[transfer_to_agent_b, transfer_to_weather_agent,transfer_to_rag_agent,transfer_to_agent_c],
+    stream=True,
 )
 
 agent_b = Agent(
-    name="번역가",
+    name="일본어 번역가",
     instructions="당신은 번역가 입니다. 주어진 정보를 번역하는 역할입니다.",
     functions=[transfer_to_agent_a],
     stream=True,
+)
+
+agent_c = Agent(
+    name="영어 번역가",
+    instructions="당신은 영어 번역가 입니다. 주어진 정보를 번역하는 역할입니다.",
+    functions=[transfer_to_agent_c],
+    stream=True,
+    
 )
 
 weather_agent = Agent(
