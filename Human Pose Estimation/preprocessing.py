@@ -27,6 +27,7 @@ def preprocess_image_pil(image_path, target_size=(256, 256)):
 
 # 테스트용 코드 (선택 사항)
 if __name__ == "__main__":
-    image_path = "path/to/your/image.jpg"  # 실제 이미지 경로로 변경하세요.
+    # 테스트용 이미지 경로 (실제 존재하는 이미지 파일명을 사용하세요)
+    image_path = r"C:\Users\dev\Documents\GitHub\sideProject\Human Pose Estimation\data\train2017\000000388255.jpg"
     processed_tensor = preprocess_image_pil(image_path)
     print("전처리된 이미지 텐서 shape:", processed_tensor.shape)
