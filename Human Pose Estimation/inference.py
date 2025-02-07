@@ -10,7 +10,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 2️⃣ 저장된 모델 불러오기
 model = ResNetPoseNet(num_keypoints=17).to(device)
-model.load_state_dict(torch.load("pose_model_8.pth", map_location=device))  # ✅ 최신 모델 로드
+model.load_state_dict(torch.load("pose_model_22.pth", map_location=device))  # ✅ 최신 모델 로드
 model.eval()  # 모델을 평가 모드로 설정
 
 # 3️⃣ 이미지 전처리 함수
@@ -52,7 +52,7 @@ def visualize_keypoints(image_path, keypoints):
 
 # 6️⃣ 실행 예제
 if __name__ == "__main__":
-    image_path = "C:/Users/dev/Documents/GitHub/sideProject/Human Pose Estimation/data/val2017/000000000785.jpg"  # 테스트할 이미지 경로
+    image_path = "C:/Users/dev/Documents/GitHub/sideProject/Human Pose Estimation/data/train2017/000000000962.jpg"  # 테스트할 이미지 경로
     keypoints = predict_pose(image_path)
 
     print("✅ Inference completed! Predicted Keypoints:\n", keypoints)
