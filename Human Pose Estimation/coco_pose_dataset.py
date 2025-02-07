@@ -5,16 +5,15 @@ from PIL import Image
 import torchvision.transforms as transforms
 import torch
 import numpy as np
-import cv2  # Heatmap 그릴 때 유용
 
 class COCOPoseDataset(Dataset):
-    def __init__(self, img_dir, ann_file, input_size=(256, 256)):
+    def __init__(self, img_dir, ann_file, input_size=(224, 224)):
         self.img_dir = img_dir
         self.coco = COCO(ann_file)
         self.img_ids = self.coco.getImgIds()
         self.input_size = input_size
 
-        # 예시 전처리 파이프라인
+        # ✅ 이미지 전처리 파이프라인 (224x224 변경)
         self.transform = transforms.Compose([
             transforms.Resize(self.input_size),
             transforms.ToTensor(),
@@ -30,40 +29,25 @@ class COCOPoseDataset(Dataset):
         img_info = self.coco.loadImgs(img_id)[0]
         image_path = os.path.join(self.img_dir, img_info['file_name'])
 
-        # 이미지 로드
+        # ✅ 이미지 로드 및 전처리
         image = Image.open(image_path).convert('RGB')
+        image_tensor = self.transform(image)
 
-        # 키포인트 로드
+        # ✅ 키포인트 로드 (17개 관절, (x, y) 좌표만 추출)
         ann_ids = self.coco.getAnnIds(imgIds=img_id, iscrowd=False)
         anns = self.coco.loadAnns(ann_ids)
 
-        # (간단 예시) 첫 번째 사람만 키포인트 사용
+        keypoints = np.zeros((17, 2))  # 기본값 (0, 0)으로 초기화
         if len(anns) > 0 and 'keypoints' in anns[0]:
-            keypoints = anns[0]['keypoints']
-        else:
-            # 사람이 없거나 키포인트가 없는 경우
-            keypoints = [0]*(17*3)  # 17개 관절 * (x,y,v)
+            for i in range(17):
+                x = anns[0]['keypoints'][i * 3]   # x 좌표
+                y = anns[0]['keypoints'][i * 3 + 1]  # y 좌표
+                v = anns[0]['keypoints'][i * 3 + 2]  # 가시성 (0=보이지 않음, 1=부분, 2=완전)
+                
+                if v > 0:  # 가시성이 1 또는 2인 경우만 사용
+                    keypoints[i, 0] = x / img_info["width"]   # x 좌표 정규화
+                    keypoints[i, 1] = y / img_info["height"]  # y 좌표 정규화
 
-        # Heatmap 생성(옵션): 모델이 Heatmap Regression 방식을 쓸 경우
-        # 간단히 64x64 크기로 줄여서 관절 위치 찍기 예시
-        heatmap_size = (self.input_size[1]//4, self.input_size[0]//4)
-        num_keypoints = 17
-        heatmaps = np.zeros((num_keypoints, heatmap_size[0], heatmap_size[1]), dtype=np.float32)
+        keypoints_tensor = torch.tensor(keypoints, dtype=torch.float32)  # 텐서 변환
 
-        # 가우시안 대신 원(circle)으로 표시 (예시)
-        for kp in range(num_keypoints):
-            x = keypoints[kp*3+0]
-            y = keypoints[kp*3+1]
-            v = keypoints[kp*3+2]
-            if v > 0:  # 보이는 관절에만
-                # Heatmap 좌표로 스케일
-                x_hm = int(x * heatmap_size[1]/img_info['width'])
-                y_hm = int(y * heatmap_size[0]/img_info['height'])
-                if 0 <= x_hm < heatmap_size[1] and 0 <= y_hm < heatmap_size[0]:
-                    cv2.circle(heatmaps[kp], (x_hm, y_hm), 2, 1.0, -1)
-
-        # 이미지 전처리
-        image_tensor = self.transform(image)
-        heatmaps_tensor = torch.from_numpy(heatmaps)
-
-        return image_tensor, heatmaps_tensor
+        return image_tensor, keypoints_tensor
